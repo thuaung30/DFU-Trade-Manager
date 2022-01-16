@@ -1,4 +1,12 @@
-import { Stack, Box, Text, Center, Tag, TagLabel } from "@chakra-ui/react";
+import {
+  Stack,
+  Box,
+  Text,
+  Center,
+  Tag,
+  TagLabel,
+  useToast,
+} from "@chakra-ui/react";
 import { isEmpty } from "lodash";
 import React from "react";
 import { useAcceptTrustlineMutation } from "../../api/api";
@@ -26,14 +34,27 @@ const TrustlineRequestCard: React.FC<TrustlineRequestCardProps> = ({
     getTrustlineUpdateOfCurrentRequest(event)
   );
   const accepted = !isEmpty(trustlineUpdate);
+  const toast = useToast();
 
   const onClickAccept = async () => {
-    await acceptTrustline({
-      contactAddress: event.counterParty,
-      clGiven: event.received as number,
-      clReceived: event.given as number,
-      wallet,
-    });
+    try {
+      await acceptTrustline({
+        contactAddress: event.counterParty,
+        clGiven: event.received as number,
+        clReceived: event.given as number,
+        wallet,
+      });
+      toast({
+        title: "Trustline Request Accepted",
+        description: `Trustline Request from ${event.counterParty} accepted.`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
